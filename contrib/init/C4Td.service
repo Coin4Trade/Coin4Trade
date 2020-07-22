@@ -1,0 +1,26 @@
+[Unit]
+Description=C4T's distributed currency daemon
+After=network.target
+
+[Service]
+User=C4T
+Group=C4T
+
+Type=C4T
+PIDFile=/var/lib/C4Td/C4Td.pid
+
+ExecStart=/usr/bin/C4Td -daemon -pid=/var/lib/C4Td/C4Td.pid \
+          -conf=/etc/C4T/C4T.conf -datadir=/var/lib/C4Td
+
+ExecStop=-/usr/bin/C4T-cli -conf=/etc/C4T/C4T.conf \
+         -datadir=/var/lib/C4Td stop
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

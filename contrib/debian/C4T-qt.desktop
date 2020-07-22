@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=C4T
+Comment=C4T P2P Cryptocurrency
+Comment[fr]=C4T, monnaie virtuelle cryptographique pair à pair
+Comment[tr]=C4T, eşten eşe kriptografik sanal para birimi
+Exec=C4T-qt %u
+Terminal=false
+Type=Application
+Icon=C4T128
+MimeType=x-scheme-handler/C4T;
+Categories=Office;Finance;
