@@ -165,7 +165,7 @@ public:
         vSeeds.push_back(CDNSSeedData("5.101.50.150", "5.101.50.150"));
         vSeeds.push_back(CDNSSeedData("45.76.2.239", "45.76.2.239"));
         vSeeds.push_back(CDNSSeedData("207.246.87.103", "207.246.87.103"));
-        vSeeds.push_back(CDNSSeedData("95.179.253.130", "95.179.253.130"));
+        vSeeds.push_back(CDNSSeedData("95.179.148.213", "95.179.148.213"));
 
         // C4T addresses start with 'С'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 28); // C4T addresses start with 'C' https://en.bitcoin.it/wiki/List_of_address_prefixes
