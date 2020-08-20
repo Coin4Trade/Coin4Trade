@@ -7,7 +7,7 @@ architectures:
 packages:
 - "faketime"
 remotes:
-- "url": "https://github.com/Coin4Trade/C4T-detached-sigs.git"
+- "url": "https://github.com/Coin4Trade/Coin4Trade-detached-sigs.git"
   "dir": "signature"
 files:
 - "C4T-osx-unsigned.tar.gz"

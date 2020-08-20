@@ -40,7 +40,7 @@ The following are developer notes on how to build C4T on your native platform. T
 
 Development
 ---------------------
-The C4T repo's [root README](https://github.com/Coin4Trade/C4T/blob/master/README.md) contains relevant information on the development process and automated testing.
+The C4T repo's [root README](https://github.com/Coin4Trade/Coin4Trade/blob/master/README.md) contains relevant information on the development process and automated testing.
 
 - [Developer Notes](developer-notes.md)
 - [Multiwallet Qt Development](multiwallet-qt.md)

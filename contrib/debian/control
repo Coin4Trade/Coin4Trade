@@ -23,8 +23,8 @@ Build-Depends: debhelper,
  libprotobuf-dev, protobuf-compiler
 Standards-Version: 3.9.2
 Homepage: http://www.C4T.org
-Vcs-Git: git://github.com/Coin4Trade/C4T
-Vcs-Browser: https://github.com/Coin4Trade/C4T
+Vcs-Git: git://github.com/Coin4Trade/Coin4Trade
+Vcs-Browser: https://github.com/Coin4Trade/Coin4Trade
 
 Package: C4Td
 Architecture: any

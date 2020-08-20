@@ -1,5 +1,5 @@
 ---
-name: "C4T-win-1.0"
+name: "C4T-win-1.1"
 enable_cache: true
 suites:
 - "trusty"
@@ -22,8 +22,8 @@ packages:
 - "ca-certificates"
 - "python"
 remotes:
-- "url": "https://github.com/Coin4Trade/C4T.git"
-  "dir": "C4T"
+- "url": "https://github.com/Coin4Trade/Coin4Trade.git"
+  "dir": "Coin4Trade"
 files: []
 script: |
   WRAP_DIR=$HOME/wrapped
@@ -101,7 +101,7 @@ script: |
   create_per-host_linker_wrapper "2000-01-01 12:00:00"
   export PATH=${WRAP_DIR}:${PATH}
 
-  cd C4T
+  cd Coin4Trade
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do

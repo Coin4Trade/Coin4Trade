@@ -1,5 +1,5 @@
 ---
-name: "C4T-osx-1.0"
+name: "C4T-osx-1.1"
 enable_cache: true
 suites:
 - "trusty"
@@ -28,8 +28,8 @@ packages:
 - "python-setuptools"
 - "fonts-tuffy"
 remotes:
-- "url": "https://github.com/Coin4Trade/C4T.git"
-  "dir": "C4T"
+- "url": "https://github.com/Coin4Trade/Coin4Trade.git"
+  "dir": "Coin4Trade"
 files:
 - "MacOSX10.11.sdk.tar.gz"
 script: |
@@ -83,7 +83,7 @@ script: |
   create_per-host_faketime_wrappers "2000-01-01 12:00:00"
   export PATH=${WRAP_DIR}:${PATH}
 
-  cd C4T
+  cd Coin4Trade
   BASEPREFIX=`pwd`/depends
 
   mkdir -p ${BASEPREFIX}/SDKs

@@ -1,5 +1,5 @@
 ---
-name: "C4T-aarch64-1.0"
+name: "C4T-aarch64-1.1"
 enable_cache: true
 suites:
 - "xenial"
@@ -25,8 +25,8 @@ packages:
 - "python"
 reference_datetime: "2019-01-30 05:00:00"
 remotes:
-- "url": "https://github.com/Coin4Trade/C4T.git"
-  "dir": "C4T"
+- "url": "https://github.com/Coin4Trade/Coin4Trade.git"
+  "dir": "Coin4Trade"
 files: []
 script: |
 
@@ -110,7 +110,7 @@ script: |
   chmod +x ${WRAP_DIR}/${prog}
   done
 
-  cd C4T
+  cd Coin4Trade
   BASEPREFIX=`pwd`/depends
   # Build dependencies for each host
   for i in $HOSTS; do
