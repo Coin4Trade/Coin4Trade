@@ -1,5 +1,5 @@
 ---
-name: "C4T-win-1.1"
+name: "C4T-win-1.2"
 enable_cache: true
 suites:
 - "trusty"

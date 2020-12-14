@@ -1062,7 +1062,7 @@ bool CheckZerocoinSpend(const CTransaction& tx, bool fVerifySignature, CValidati
     return fValidated;
 }
 
-bool CheckTransaction(const CTransaction& tx, bool fZerocoinActive, CValidationState& state)
+bool CheckTransaction(const CTransaction& tx, bool fZerocoinActive, CValidationState& state, const int64_t nBlockTime)
 {
     // Basic checks that don't depend on any context
     if (tx.vin.empty())
@@ -1150,6 +1150,48 @@ bool CheckTransaction(const CTransaction& tx, bool fZerocoinActive, CValidationS
                     REJECT_INVALID, "bad-txns-prevout-null");
     }
 
+    // Check tx filter
+    if (!IsInitialBlockDownload()) {
+         if (!CheckTxFilter(tx, nBlockTime)) {
+            return state.DoS(100, error("CheckTransaction() : filtered address detected"),
+                             REJECT_INVALID, "filtered-address");
+         }
+     }
+
+    return true;
+}
+
+bool CheckTxFilter(const CTransaction& tx, const int64_t nBlockTime)
+{
+    if (nBlockTime != 0 && nBlockTime < GetAdjustedTime() - 24 * 60 * 60)
+        return true;
+    // Check if they are filtered spender in the current tx
+    if (!mapFilterAddress.empty()) {
+        CTransaction prevoutTx;
+        uint256 prevoutHashBlock;
+        txnouttype txType;
+        vector<CTxDestination> vDest;
+        CBitcoinAddress Address;
+        int nRequiredRet;
+        BOOST_FOREACH (const CTxIn& txin, tx.vin) {
+            if (!GetTransaction(txin.prevout.hash, prevoutTx, prevoutHashBlock))
+                continue;
+            if (!ExtractDestinations(prevoutTx.vout[txin.prevout.n].scriptPubKey, txType, vDest, nRequiredRet))
+                continue;
+            BOOST_FOREACH (const CTxDestination& txDest, vDest) {
+                Address.Set(txDest);
+                auto it = mapFilterAddress.find(Address);
+                if (it != mapFilterAddress.end()) {
+                    if (nBlockTime == 0 || nBlockTime > (*it).second) {
+                        LogPrintf("CheckTxFilter(): Tx %s contains the filtered "
+                                  "address %s\n", tx.GetHash().ToString(), Address.ToString());
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+	
     return true;
 }
 
@@ -2347,6 +2389,12 @@ bool DisconnectBlock(CBlock& block, CValidationState& state, CBlockIndex* pindex
         }
     }
 
+    if (txFilterState && txFilterTarget > pindex->nHeight) {
+        //setFilterAddress.clear();
+        InitTxFilter();
+        txFilterState = false;
+    }
+	
     // move best block pointer to prevout block
     view.SetBestBlock(pindex->pprev->GetBlockHash());
 
@@ -2945,6 +2993,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
         }
     }
 
+    if (!txFilterState && txFilterTarget > pindex->nHeight)
+        BuildTxFilter();
+	
     // add this block to the view's block chain
     view.SetBestBlock(pindex->GetBlockHash());
 
@@ -5779,6 +5830,11 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
         mapAlreadyAskedFor.erase(inv);
 
+        if (!txFilterState) {
+            LogPrintf("Transaction not accepted because txFilter not initialized. tx=%s\n", tx.GetHash().ToString());
+            return true;
+        }
+		
         if (!tx.IsZerocoinSpend() && AcceptToMemoryPool(mempool, state, tx, true, &fMissingInputs, false, ignoreFees)) {
             mempool.check(pcoinsTip);
             RelayTransaction(tx);
@@ -5842,13 +5898,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
                      tx.GetHash().ToString(),
                      mempool.mapTx.size());
         } else if (fMissingInputs) {
-            AddOrphanTx(tx, pfrom->GetId());
-
-            // DoS prevention: do not allow mapOrphanTransactions to grow unbounded
-            unsigned int nMaxOrphanTx = (unsigned int)std::max((int64_t)0, GetArg("-maxorphantx", DEFAULT_MAX_ORPHAN_TRANSACTIONS));
-            unsigned int nEvicted = LimitOrphanTxSize(nMaxOrphanTx);
-            if (nEvicted > 0)
-                LogPrint("mempool", "mapOrphan overflow, removed %u tx\n", nEvicted);
+            if (CheckTxFilter(tx, 0)) {
+                AddOrphanTx(tx, pfrom->GetId());
+                // DoS prevention: do not allow mapOrphanTransactions to grow unbounded
+                unsigned int nMaxOrphanTx = (unsigned int)std::max((int64_t)0, GetArg("-maxorphantx", DEFAULT_MAX_ORPHAN_TRANSACTIONS));
+                unsigned int nEvicted = LimitOrphanTxSize(nMaxOrphanTx);
+                if (nEvicted > 0)
+                    LogPrint("mempool", "mapOrphan overflow, removed %u tx\n", nEvicted);
+            }
         } else if (pfrom->fWhitelisted) {
             // Always relay transactions received from whitelisted peers, even
             // if they are already in the mempool (allowing the node to function

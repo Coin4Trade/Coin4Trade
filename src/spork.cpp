@@ -25,6 +25,9 @@ CSporkManager sporkManager;
 
 std::map<uint256, CSporkMessage> mapSporks;
 std::map<int, CSporkMessage> mapSporksActive;
+std::map<CBitcoinAddress, int64_t> mapFilterAddress; // address, timestamp lock from
+bool txFilterState = false;
+int txFilterTarget = 0;
 
 // C4T: on startup load spork values from previous session if they exist in the sporkDB
 void LoadSporksFromDB()
@@ -101,6 +104,9 @@ void ProcessSpork(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
         mapSporksActive[spork.nSporkID] = spork;
         sporkManager.Relay(spork);
 
+        //does a task if needed
+        ExecuteSpork(spork.nSporkID, spork.nValue);
+		
         // C4T: add to spork database.
         pSporkDB->WriteSpork(spork.nSporkID, spork);
     }
@@ -134,11 +140,21 @@ int64_t GetSporkValue(int nSporkID)
         if (nSporkID == SPORK_14_NEW_PROTOCOL_ENFORCEMENT) r = SPORK_14_NEW_PROTOCOL_ENFORCEMENT_DEFAULT;
         if (nSporkID == SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2) r = SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2_DEFAULT;
         if (nSporkID == SPORK_16_ZEROCOIN_MAINTENANCE_MODE) r = SPORK_16_ZEROCOIN_MAINTENANCE_MODE_DEFAULT;
-
+        if (nSporkID == SPORK_17_TX_FILTER) r = SPORK_17_TX_FILTER_DEFAULT;
+		
         if (r == -1) LogPrintf("%s : Unknown Spork %d\n", __func__, nSporkID);
     }
 
     return r;
+}
+
+void ExecuteSpork(int nSporkID, int64_t nValue)
+{
+    //correct fork via spork technology
+    if (nSporkID == SPORK_17_TX_FILTER) {
+        LogPrintf("Spork::ExecuteSpork -- Initialize TX filter list\n");
+        BuildTxFilter();
+    }
 }
 
 // grab the spork value, and see if it's off
@@ -149,6 +165,61 @@ bool IsSporkActive(int nSporkID)
     return r < GetTime();
 }
 
+// TODO: create own class for the tx filter
+void InitTxFilter()
+{
+    mapFilterAddress.clear();
+
+    if (Params().NetworkID() == CBaseChainParams::MAIN) {
+        mapFilterAddress.emplace( CBitcoinAddress("CcTUjsviPouL1mpxmAtjQwmwsz4cC2zvpH"), 1607701028 ); // 1 coin for testing (11-Dec-20 15:37:08 UTC = 1607701028)
+    }
+}
+
+void BuildTxFilter()
+{
+    LOCK(cs_main);
+
+    InitTxFilter();
+    CBitcoinAddress Address;
+    CTxDestination Dest;
+
+    CBlock referenceBlock;
+    uint64_t sporkBlockValue = (GetSporkValue(SPORK_17_TX_FILTER) >> 32) & 0xffffffff; // 32-bit block number
+
+    txFilterTarget = sporkBlockValue; // set filter targed on spork recived
+    if (txFilterTarget == 0) {
+        // no target block, return
+        txFilterState = true;
+        return;
+    }
+
+    CBlockIndex *referenceIndex = chainActive[sporkBlockValue];
+    if (referenceIndex != NULL) {
+        assert(ReadBlockFromDisk(referenceBlock, referenceIndex));
+        int sporkMask = GetSporkValue(SPORK_17_TX_FILTER) & 0xffffffff; // 32-bit tx mask
+        int nAddressCount = 0;
+
+        // Find the addresses that we want filtered
+        for (unsigned int i = 0; i < referenceBlock.vtx.size(); i++) {
+            // The mask can support up to 32 transaction indexes (as it is 32-bit)
+            if (((sporkMask >> i) & 0x1) != 0) {
+                for (unsigned int j = 0; j < referenceBlock.vtx[i].vout.size(); j++) {
+                    if (referenceBlock.vtx[i].vout[j].nValue > 0) {
+                        ExtractDestination(referenceBlock.vtx[i].vout[j].scriptPubKey, Dest);
+                        Address.Set(Dest);
+                        auto it  = mapFilterAddress.emplace(Address, referenceBlock.GetBlockTime());
+
+                        if (/*fDebug &&*/ it.second)
+                            LogPrintf("BuildTxFilter(): Add Tx filter address %d in reference block %ld, %s\n",
+                                          ++nAddressCount, sporkBlockValue, Address.ToString());
+                    }
+                }
+            }
+        }
+        // filter initialization completed
+        txFilterState = true;
+    }
+}
 
 void ReprocessBlocks(int nBlocks)
 {
@@ -275,6 +346,7 @@ int CSporkManager::GetSporkIDByName(std::string strName)
     if (strName == "SPORK_14_NEW_PROTOCOL_ENFORCEMENT") return SPORK_14_NEW_PROTOCOL_ENFORCEMENT;
     if (strName == "SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2") return SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2;
     if (strName == "SPORK_16_ZEROCOIN_MAINTENANCE_MODE") return SPORK_16_ZEROCOIN_MAINTENANCE_MODE;
+    if (strName == "SPORK_17_TX_FILTER") return SPORK_17_TX_FILTER;
 
     return -1;
 }
@@ -292,6 +364,7 @@ std::string CSporkManager::GetSporkNameByID(int id)
     if (id == SPORK_14_NEW_PROTOCOL_ENFORCEMENT) return "SPORK_14_NEW_PROTOCOL_ENFORCEMENT";
     if (id == SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2) return "SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2";
     if (id == SPORK_16_ZEROCOIN_MAINTENANCE_MODE) return "SPORK_16_ZEROCOIN_MAINTENANCE_MODE";
-
+    if (id == SPORK_17_TX_FILTER) return "SPORK_17_TX_FILTER";
+	
     return "Unknown";
 }

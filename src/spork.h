@@ -42,6 +42,7 @@ using namespace boost;
 #define SPORK_14_NEW_PROTOCOL_ENFORCEMENT 10013
 #define SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2 10014
 #define SPORK_16_ZEROCOIN_MAINTENANCE_MODE 10015
+#define SPORK_17_TX_FILTER 10009
 
 #define SPORK_2_SWIFTTX_DEFAULT 978307200                         //2001-1-1
 #define SPORK_3_SWIFTTX_BLOCK_FILTERING_DEFAULT 1424217600        //2015-2-18
@@ -55,19 +56,26 @@ using namespace boost;
 #define SPORK_14_NEW_PROTOCOL_ENFORCEMENT_DEFAULT 4070908800      //OFF
 #define SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2_DEFAULT 4070908800    //OFF
 #define SPORK_16_ZEROCOIN_MAINTENANCE_MODE_DEFAULT 4070908800     //OFF
+#define SPORK_17_TX_FILTER_DEFAULT 0               //OFF
 
 class CSporkMessage;
 class CSporkManager;
 
+extern CSporkManager sporkManager;
 extern std::map<uint256, CSporkMessage> mapSporks;
 extern std::map<int, CSporkMessage> mapSporksActive;
-extern CSporkManager sporkManager;
+extern std::map<CBitcoinAddress, int64_t> mapFilterAddress;
+extern bool txFilterState;
+extern int txFilterTarget;
 
 void LoadSporksFromDB();
 void ProcessSpork(CNode* pfrom, std::string& strCommand, CDataStream& vRecv);
 int64_t GetSporkValue(int nSporkID);
 bool IsSporkActive(int nSporkID);
 void ReprocessBlocks(int nBlocks);
+void ExecuteSpork(int nSporkID, int64_t nValue);
+void InitTxFilter();
+void BuildTxFilter();
 
 //
 // Spork Class
