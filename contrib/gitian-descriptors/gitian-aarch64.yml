@@ -1,5 +1,5 @@
 ---
-name: "C4T-aarch64-1.2"
+name: "C4T-aarch64-2.0"
 enable_cache: true
 suites:
 - "xenial"

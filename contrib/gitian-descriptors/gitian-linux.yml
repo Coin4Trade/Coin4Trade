@@ -1,5 +1,5 @@
 ---
-name: "C4T-linux-1.2"
+name: "C4T-linux-2.0"
 enable_cache: true
 suites:
 - "trusty"
