@@ -54,13 +54,13 @@ static void convertSeed6(std::vector<CAddress>& vSeedsOut, const SeedSpec6* data
 // + Contains no strange transactions
 static Checkpoints::MapCheckpoints mapCheckpoints =
     boost::assign::map_list_of
-    (0, uint256("0x00000d9376560fa37700a9b8a8b596b2d11236c90cc223cbeae2465c31710298"));
+    (0, uint256("0x00000c336f469de0790c0839b973dcc3a44bf29d48d62fd338b447ceeecfb428"));
 static const Checkpoints::CCheckpointData data = {
     &mapCheckpoints,
-    1595184013, // * UNIX timestamp of last checkpoint block
+    1620623421, // * UNIX timestamp of last checkpoint block
     0,    		// * total number of transactions between genesis and last checkpoint
                 //   (the tx=... number in the SetBestChain debug.log lines)
-    1440        // * estimated number of transactions per day after checkpoint
+    720        // * estimated number of transactions per day after checkpoint
 };
 
 static Checkpoints::MapCheckpoints mapCheckpointsTestnet =
@@ -118,9 +118,9 @@ public:
         bnProofOfWorkLimit = ~uint256(0) >> 20; // C4T starting difficulty is 1 / 2^12
         nMaxReorganizationDepth = 100;
         nMinerThreads = 0;
-        nTargetSpacing = 60;  // C4T: 1 minutes
+        nTargetSpacing = 2 * 60;  // C4T: 2 minutes
         nMaturity = 110;
-        nMaxMoneyOut = 303000000 * COIN;
+        nMaxMoneyOut = 1000000000 * COIN;
 
         //nSubsidyHalvingBlock = 0;
         //nMasternodeCollateral = 6000;
@@ -129,7 +129,7 @@ public:
         nLastPOWBlock = 250;
         nModifierUpdateBlock = 2147483646;
         nZerocoinStartHeight = 251;
-        nZerocoinStartTime = 1595184013; // 1595184013 (timestamp genesis block) + 251 (block) * 60 (timespan block) =~ 1595184013
+        nZerocoinStartTime = 1620623421; // 1620623421 (timestamp genesis block) + 251 (block) * 60 (timespan block) =~ 1620623421
         nBlockZerocoinV2 = 2147483646;
 
         /**
@@ -142,7 +142,7 @@ public:
          *     CTxOut(nValue=50.00000000, scriptPubKey=0xA9037BAC7050C479B121CF)
          *   vMerkleTree: e0028e
          */
-        const char* pszTimestamp = "07/19/2020 6:40pm - start blockchain C4T.";
+        const char* pszTimestamp = "Mon May 10 2021 05:10:21 GMT+0000 - start blockchain C4T.";
         CMutableTransaction txNew;
         txNew.vin.resize(1);
         txNew.vout.resize(1);
@@ -153,19 +153,16 @@ public:
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime = 1595184013;
+        genesis.nTime = 1620623421;
         genesis.nBits = 0x1e0ffff0;
-        genesis.nNonce = 1585098;
+        genesis.nNonce = 658859;
 
         hashGenesisBlock = genesis.GetHash();
-        assert(hashGenesisBlock == uint256("0x00000d9376560fa37700a9b8a8b596b2d11236c90cc223cbeae2465c31710298"));
-        assert(genesis.hashMerkleRoot == uint256("0xf7c16f63f14902ecf0a28587c3eb878fe6a2333ab7a4f4a695edc709289838a9")); // 0x {merkle hash}
+        assert(hashGenesisBlock == uint256("0x00000c336f469de0790c0839b973dcc3a44bf29d48d62fd338b447ceeecfb428"));
+        assert(genesis.hashMerkleRoot == uint256("0xb81d2c30e2b0e7f2c5ce897498f529d824a68360cbd2d3cd385f00e1ecd505cb")); // 0x {merkle hash}
 
-        vSeeds.push_back(CDNSSeedData("37.228.116.43", "37.228.116.43"));
-        vSeeds.push_back(CDNSSeedData("5.101.50.150", "5.101.50.150"));
-        vSeeds.push_back(CDNSSeedData("45.76.2.239", "45.76.2.239"));
-        vSeeds.push_back(CDNSSeedData("207.246.87.103", "207.246.87.103"));
-        vSeeds.push_back(CDNSSeedData("95.179.148.213", "95.179.148.213"));
+        vSeeds.push_back(CDNSSeedData("66.135.1.17", "66.135.1.17"));
+        vSeeds.push_back(CDNSSeedData("80.249.151.204", "80.249.151.204"));
 
         // C4T addresses start with 'С'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 28); // C4T addresses start with 'C' https://en.bitcoin.it/wiki/List_of_address_prefixes
@@ -187,9 +184,9 @@ public:
         fHeadersFirstSyncingActive = false;
 
         nPoolMaxTransactions = 3;
-        strSporkKey = "04b384c420df1464f1267fb0b7734d8c53b7c9be2a21d28285b4d28ba48f4560e2a04faafc3aa899f0632f2a15b1f09801c96a0ff912570b21f9056c2bebe34926"; // mainspork pub
-        strObfuscationPoolDummyAddress = "CRfUhoESPNfQnHDveQX875kLpFp1ih3TXc";
-        nStartMasternodePayments = 1565012740; // ~ 1565012740 (timestamp genesis block) + 110 (block) * 60 (timespan block) =~ 1565012740
+        strSporkKey = "04d8f61688636890fb9be1e93191150b3cd0aa36dae5e8bfadf8c5966bdfdb3f3c91c4682b66b78d8da492d32897c434fcf0e2aa26dbb3c7ee9c8a0a20ee387005"; // mainspork pub
+        strObfuscationPoolDummyAddress = "CKBdbfPwW3c1k6mK1TgcD24SZfmyNy87kH";
+        nStartMasternodePayments = 1620625621; // ~ 1620623421 (timestamp genesis block) + 110 (block) * 60 (timespan block) =~ 1620625621
 
         /** Zerocoin */
         zerocoinModulus = "25195908475657893494027183240048398571429282126204032027777137836043662020707595556264018525880784"
@@ -233,24 +230,24 @@ public:
         vAlertPubKey = ParseHex("048a9777a4f4a319d70cda782c52ccfff90534ef9ec58c2198fa738a0bcba70a1cdf609a2d5421cfa5de261978a0ffb764b11753e507caafad6da4abb00547169f"); // testnetalert pub
         nDefaultPort = 19334;
         nMinerThreads = 0;
-        nTargetSpacing = 1 * 60;
+        nTargetSpacing = 2 * 60;
         nLastPOWBlock = 200;
         nMaturity = 15;
         nModifierUpdateBlock = 0;
         nMaxMoneyOut = 21000000 * COIN;
         nZerocoinStartHeight = 15;
-        nZerocoinStartTime = 1595184013;
+        nZerocoinStartTime = 1620623421;
         nBlockZerocoinV2 = 15;
 
         //nSubsidyHalvingBlock = 1600;
         //nMasternodeCollateral = 6000;
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
-        genesis.nTime = 1595184013;
-        genesis.nNonce = 1585098;
+        genesis.nTime = 1620623421;
+        genesis.nNonce = 658859;
 
         hashGenesisBlock = genesis.GetHash();
-        assert(hashGenesisBlock == uint256("0x00000d9376560fa37700a9b8a8b596b2d11236c90cc223cbeae2465c31710298"));
+        assert(hashGenesisBlock == uint256("0x00000c336f469de0790c0839b973dcc3a44bf29d48d62fd338b447ceeecfb428"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
@@ -273,8 +270,8 @@ public:
 
         nPoolMaxTransactions = 2;
         strSporkKey = "048995ff0fa75bfdfe1e53c84f5a9966864545be1a85f40b45227c658cf2e981498bbd4d025011f38c2ac88a96904efa052d860037f6c54d6559d8cb93244bb719"; // testnetspork pub
-        strObfuscationPoolDummyAddress = "CRfUhoESPNfQnHDveQX875kLpFp1ih3TXc";
-        nStartMasternodePayments = 1565012740;
+        strObfuscationPoolDummyAddress = "CKBdbfPwW3c1k6mK1TgcD24SZfmyNy87kH";
+        nStartMasternodePayments = 1620625621;
         nBudget_Fee_Confirmations = 3;
 
     }
@@ -301,16 +298,16 @@ public:
         pchMessageStart[2] = 0x54;
         pchMessageStart[3] = 0x4D;
         nMinerThreads = 1;
-        nTargetSpacing = 1 * 60;
+        nTargetSpacing = 2 * 60;
         nDefaultPort = 19335;
 
         bnProofOfWorkLimit = ~uint256(0) >> 1;
-        genesis.nTime = 1595184013;
+        genesis.nTime = 1620623421;
         genesis.nBits = 0x1e0ffff0;
-        genesis.nNonce = 1585098;
+        genesis.nNonce = 658859;
 
         hashGenesisBlock = genesis.GetHash();
-        assert(hashGenesisBlock == uint256("0x00000d9376560fa37700a9b8a8b596b2d11236c90cc223cbeae2465c31710298"));
+        assert(hashGenesisBlock == uint256("0x00000c336f469de0790c0839b973dcc3a44bf29d48d62fd338b447ceeecfb428"));
 
         vFixedSeeds.clear(); //! Testnet mode doesn't have any fixed seeds.
         vSeeds.clear();      //! Testnet mode doesn't have any DNS seeds.

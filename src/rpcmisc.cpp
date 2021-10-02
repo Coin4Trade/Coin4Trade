@@ -281,7 +281,6 @@ UniValue spork(const UniValue& params, bool fHelp)
 
         //broadcast new spork
         if (sporkManager.UpdateSpork(nSporkID, nValue)) {
-            ExecuteSpork(nSporkID, nValue);
             return "success";
         } else {
             return "failure";
